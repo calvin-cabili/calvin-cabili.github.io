@@ -2,6 +2,150 @@
   "use strict";
 
   /* ---------------------------------------------------
+     Projects
+     ---------------------------------------------------
+     Add real, finished projects here and they'll appear on the
+     site automatically. Leave the array empty (as it is now) and
+     the whole Projects section stays hidden — no "Coming soon",
+     no empty section, nothing for a visitor to see.
+
+     HOW TO ADD A PROJECT:
+     1. Save a screenshot to /assets/ (e.g. assets/project-1.jpg)
+     2. Add an object to the array below, filling in the fields
+        you have. `image`, `liveUrl`, and `githubUrl` are optional —
+        leave them as an empty string ("") to skip that part of
+        the card (e.g. no Live Demo button if there's no liveUrl).
+     3. Save the file. The section un-hides itself automatically.
+     4. Open index.html, find the comment above the nav menu that
+        starts with "NAV: Add a 'Projects' link here", and add
+        that line to both the desktop and mobile nav lists.
+
+     Example:
+     {
+       title: "Task & Follow-up Tracker",
+       image: "assets/project-1.jpg",
+       description: "A small browser tool for tracking recurring
+         administrative tasks and follow-ups without a spreadsheet.",
+       role: "Designer & Developer",
+       technologies: ["HTML", "CSS", "JavaScript"],
+       highlights: ["Persistent local storage", "Filter by due date"],
+       result: "Demonstrates basic front-end structure and data handling.",
+       liveUrl: "https://example.com",
+       githubUrl: "https://github.com/yourname/project"
+     }
+  --------------------------------------------------- */
+  var projects = [];
+
+  function renderProjects() {
+    var section = document.getElementById("projects");
+    var grid = document.getElementById("project-grid");
+    if (!section || !grid || !projects.length) {
+      return; // section stays hidden — nothing to render
+    }
+
+    projects.forEach(function (project) {
+      var card = document.createElement("article");
+      card.className = "card project-card";
+
+      if (project.image) {
+        var imageWrap = document.createElement("div");
+        imageWrap.className = "project-image-wrap";
+        var img = document.createElement("img");
+        img.src = project.image;
+        img.alt = project.title || "Project screenshot";
+        img.loading = "lazy";
+        imageWrap.appendChild(img);
+        card.appendChild(imageWrap);
+      }
+
+      var body = document.createElement("div");
+      body.className = "project-body";
+
+      var title = document.createElement("h3");
+      title.className = "project-title";
+      title.textContent = project.title || "";
+      body.appendChild(title);
+
+      if (project.role) {
+        var role = document.createElement("p");
+        role.className = "project-role";
+        role.textContent = "Role: " + project.role;
+        body.appendChild(role);
+      }
+
+      if (project.description) {
+        var description = document.createElement("p");
+        description.className = "project-description";
+        description.textContent = project.description;
+        body.appendChild(description);
+      }
+
+      if (project.technologies && project.technologies.length) {
+        var tags = document.createElement("div");
+        tags.className = "project-tags";
+        project.technologies.forEach(function (tech) {
+          var tag = document.createElement("span");
+          tag.textContent = tech;
+          tags.appendChild(tag);
+        });
+        body.appendChild(tags);
+      }
+
+      if (project.highlights && project.highlights.length) {
+        var highlights = document.createElement("ul");
+        highlights.className = "project-highlights";
+        project.highlights.forEach(function (item) {
+          var li = document.createElement("li");
+          li.textContent = item;
+          highlights.appendChild(li);
+        });
+        body.appendChild(highlights);
+      }
+
+      if (project.result) {
+        var result = document.createElement("p");
+        result.className = "project-result";
+        result.textContent = project.result;
+        body.appendChild(result);
+      }
+
+      if (project.liveUrl || project.githubUrl) {
+        var actions = document.createElement("div");
+        actions.className = "project-actions";
+
+        if (project.liveUrl) {
+          var liveLink = document.createElement("a");
+          liveLink.href = project.liveUrl;
+          liveLink.target = "_blank";
+          liveLink.rel = "noopener";
+          liveLink.className = "btn btn-primary";
+          liveLink.textContent = "View Site";
+          actions.appendChild(liveLink);
+        }
+
+        if (project.githubUrl) {
+          var codeLink = document.createElement("a");
+          codeLink.href = project.githubUrl;
+          codeLink.target = "_blank";
+          codeLink.rel = "noopener";
+          codeLink.className = "btn btn-secondary";
+          codeLink.textContent = "View Code";
+          actions.appendChild(codeLink);
+        }
+
+        body.appendChild(actions);
+      }
+
+      card.appendChild(body);
+      grid.appendChild(card);
+    });
+
+    section.hidden = false;
+  }
+
+  renderProjects();
+
+  /* ---------------------------------------------------
      Mobile hamburger menu
   --------------------------------------------------- */
   var hamburger = document.getElementById("hamburger");
@@ -102,11 +246,19 @@
   --------------------------------------------------- */
   var revealTargets = document.querySelectorAll(
     ".section-head, .about-grid, .experience-card, .education-current, " +
-    ".previous-studies, .skill-card, .cert-card, .help-card, .contact-card"
+    ".skill-card, .cert-card, .project-card, .help-card, .contact-card"
   );
 
+  // Give sibling cards inside the same grid a small staggered delay
+  // (capped at 5 steps) so groups of cards settle in one after another
+  // instead of all at once — subtle, not a full animation sequence.
+  var siblingCounts = new Map();
   revealTargets.forEach(function (el) {
     el.classList.add("reveal");
+    var parent = el.parentElement;
+    var index = siblingCounts.get(parent) || 0;
+    el.style.transitionDelay = Math.min(index, 5) * 70 + "ms";
+    siblingCounts.set(parent, index + 1);
   });
 
   if ("IntersectionObserver" in window) {

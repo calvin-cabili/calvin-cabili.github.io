@@ -52,6 +52,7 @@ html {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
 }
@@ -145,6 +146,17 @@ button { font-family: inherit; cursor: pointer; }
 }
 .section-alt .card { background: var(--surface); }
 
+/* Subtle hover lift shared by every card on the site (skills, experience,
+   certifications, projects, contact, etc.) — kept restrained on purpose. */
+.card:hover {
+  transform: translateY(-3px);
+  border-color: var(--line-strong);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+}
+[data-theme="dark"] .card:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -225,9 +237,14 @@ button { font-family: inherit; cursor: pointer; }
   transition: border-color 0.2s var(--ease);
 }
 .theme-toggle:hover { border-color: var(--line-strong); }
-.icon-moon { display: none; }
-[data-theme="dark"] .icon-sun { display: none; }
-[data-theme="dark"] .icon-moon { display: block; }
+.theme-toggle svg {
+  grid-area: 1 / 1;
+  transition: opacity 0.25s var(--ease), transform 0.35s var(--ease);
+}
+.icon-moon { opacity: 0; transform: rotate(-90deg) scale(0.6); }
+.icon-sun { opacity: 1; transform: rotate(0deg) scale(1); }
+[data-theme="dark"] .icon-sun { opacity: 0; transform: rotate(90deg) scale(0.6); }
+[data-theme="dark"] .icon-moon { opacity: 1; transform: rotate(0deg) scale(1); }
 
 .hamburger {
   display: none;
@@ -359,8 +376,11 @@ button { font-family: inherit; cursor: pointer; }
   font-size: 0.95rem;
   font-weight: 600;
   border: 1px solid transparent;
-  transition: background-color 0.2s var(--ease), border-color 0.2s var(--ease), color 0.2s var(--ease);
+  transition: background-color 0.2s var(--ease), border-color 0.2s var(--ease),
+    color 0.2s var(--ease), transform 0.2s var(--ease);
 }
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
 .btn-primary { background: var(--accent); color: var(--accent-ink); }
 .btn-primary:hover { background: color-mix(in srgb, var(--accent) 85%, black); }
 
@@ -489,6 +509,108 @@ button { font-family: inherit; cursor: pointer; }
 .section-alt .tag-list li { background: var(--paper); }
 
 /* =========================================================
+   Projects
+   (Hidden until script.js finds at least one entry in the
+   `projects` array. Styles below are ready for that moment —
+   nothing here renders anything on its own.)
+========================================================= */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.project-card {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.project-image-wrap {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--surface-alt);
+}
+.project-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.project-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.project-title { font-size: 1.1rem; }
+
+.project-role {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.project-description {
+  color: var(--ink-soft);
+  font-size: 0.96rem;
+}
+
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.project-tags span {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: var(--surface-alt);
+  color: var(--ink-soft);
+}
+
+.project-highlights { display: grid; gap: 8px; }
+.project-highlights li {
+  padding-left: 18px;
+  position: relative;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+.project-highlights li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 6px;
+  height: 2px;
+  background: var(--accent);
+}
+
+.project-result {
+  font-size: 0.92rem;
+  color: var(--ink);
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.project-actions {
+  margin-top: auto;
+  padding-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.project-actions .btn { padding: 9px 18px; font-size: 0.88rem; }
+
+@media (max-width: 880px) {
+  .project-grid { grid-template-columns: 1fr; }
+}
+
+/* =========================================================
    HELP
 ========================================================= */
 .help-grid {
@@ -554,11 +676,9 @@ button { font-family: inherit; cursor: pointer; }
   display: flex;
   flex-direction: column;
   gap: 8px;
-  transition: border-color 0.2s var(--ease), transform 0.2s var(--ease);
 }
 .contact-card:hover {
   border-color: var(--accent);
-  transform: translateY(-2px);
 }
 .contact-label {
   font-family: var(--font-mono);
